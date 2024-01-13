@@ -9,18 +9,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { KeyIcon, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import logo from "../../../assets/logo.png";
-import Image from "next/image";
-import { useContext, useState } from "react";
-import { AuthContext } from "@/context/auth-context";
-import { useUserMutation } from "@/api/useUserMutation";
-import { AxiosError } from "axios";
-import { toast } from "sonner";
+
 import { Separator } from "@/components/ui/separator";
-import { useRouter } from "next/navigation";
+
+import { useContext } from "react";
+import { AuthContext } from "@/context/auth-context";
 
 const signUpFormSchema = z.object({
   email: z.string(),
@@ -29,13 +25,7 @@ const signUpFormSchema = z.object({
 export type SignInFormData = z.infer<typeof signUpFormSchema>;
 
 export default function SignIn() {
-  const {
-    login: { mutate, isPending },
-  } = useUserMutation();
-
-  const { setUser, user } = useContext(AuthContext);
-
-  const router = useRouter();
+  const { signIn, loginIsPeding } = useContext(AuthContext);
 
   const form = useForm<SignInFormData>({
     resolver: zodResolver(signUpFormSchema),
@@ -46,17 +36,7 @@ export default function SignIn() {
   });
 
   async function handleLogin(data: SignInFormData) {
-    mutate(data, {
-      onError: (error) => {
-        if (error instanceof AxiosError) {
-          toast.error(error?.response?.data.message);
-        }
-      },
-      onSuccess: (res) => {
-        setUser(res.data.user);
-        router.push(`/rex/${user.username}`);
-      },
-    });
+    await signIn(data);
   }
 
   return (
@@ -110,8 +90,8 @@ export default function SignIn() {
             )}
           />
 
-          <Button variant="default" disabled={isPending} type="submit">
-            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          <Button variant="default" disabled={loginIsPeding} type="submit">
+            {loginIsPeding && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Entrar
           </Button>
         </form>

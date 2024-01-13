@@ -4,13 +4,17 @@ import { UserAvatar } from "@/components/user-avatar";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Bell, Home, LogOutIcon, Plus, UserRound } from "lucide-react";
-import { ReactNode } from "react";
+import { ReactNode, useContext } from "react";
 import { ThemeToggle } from "@/components/themes/theme-toggle";
 import { MostComment } from "@/components/most-comments";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { deleteCookie } from "cookies-next";
+import { AuthContext } from "@/context/auth-context";
 
 export default function PostLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
+
+  const { user, signOut } = useContext(AuthContext);
 
   return (
     <div>
@@ -22,10 +26,10 @@ export default function PostLayout({ children }: { children: ReactNode }) {
 
               <div className="flex flex-col">
                 <strong className="text-secondary-foreground text-lg">
-                  Bruno Rafael Gomes Silva
+                  {user.name}
                 </strong>
                 <span className="text-muted-foreground text-lg">
-                  bruno@email.com
+                  @{user.username}
                 </span>
               </div>
             </div>
@@ -55,7 +59,7 @@ export default function PostLayout({ children }: { children: ReactNode }) {
                 className="flex gap-4 justify-start w-full text-lg"
                 variant="ghost"
                 size="lg"
-                onClick={() => router.push("/rex/user/1")}
+                onClick={() => router.push(`/rex/user/${user.id}`)}
               >
                 <UserRound />
                 Meu Perfil
@@ -72,7 +76,11 @@ export default function PostLayout({ children }: { children: ReactNode }) {
             </div>
           </div>
           <div className="flex space-x-6 p-4">
-            <Button variant="ghost" className="flex gap-2">
+            <Button
+              onClick={() => signOut()}
+              variant="ghost"
+              className="flex gap-2"
+            >
               <LogOutIcon /> Sair
             </Button>
             <ThemeToggle />

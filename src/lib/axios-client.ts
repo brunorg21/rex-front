@@ -1,10 +1,15 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import { getCookie } from "cookies-next";
 
 export const client = (config?: AxiosRequestConfig) => {
   const api = axios.create({
     baseURL: "http://localhost:3333",
     ...config,
   });
+  const token = getCookie("@token");
+  if (token) {
+    api.defaults.headers["Authorization"] = `Bearer ${token}`;
+  }
 
   return {
     async get<T>(uri: string): Promise<AxiosResponse<T>> {

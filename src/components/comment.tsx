@@ -82,17 +82,6 @@ export function Comment({ isCommentRelated = false }: CommentProps) {
 
             <strong>20</strong>
           </div>
-          <div className="flex content-center items-center gap-2">
-            <Button
-              size="icon"
-              variant="outline"
-              className="rounded-full transition ease-in-out delay-80 duration-300"
-            >
-              <Repeat2Icon size={20} />
-            </Button>
-
-            <strong>20</strong>
-          </div>
         </div>
       </CardContent>
     </Card>

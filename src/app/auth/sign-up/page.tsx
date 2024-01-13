@@ -15,13 +15,11 @@ import { Separator } from "@/components/ui/separator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import Image from "next/image";
-import logo from "../../../assets/logo.png";
-import { useContext, useState } from "react";
-import { AxiosError } from "axios";
+
+import { useContext } from "react";
+
 import { useUserMutation } from "@/api/useUserMutation";
 import { AuthContext } from "@/context/auth-context";
-import { toast } from "sonner";
 
 const signInFormSchema = z
   .object({
@@ -58,10 +56,7 @@ const signInFormSchema = z
 export type SignUpFormData = z.infer<typeof signInFormSchema>;
 
 export default function SignUp() {
-  const {
-    createUser: { mutate, isPending },
-  } = useUserMutation();
-  const { setUser } = useContext(AuthContext);
+  const { signUp, createUserIsPending } = useContext(AuthContext);
 
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signInFormSchema),
@@ -75,22 +70,7 @@ export default function SignUp() {
   });
 
   async function handleCreateUser(data: SignUpFormData) {
-    mutate(data, {
-      onError: (error) => {
-        if (error instanceof AxiosError) {
-          toast.error(error?.response?.data.message, {
-            cancel: {
-              label: "Fechar",
-              onClick: () => toast.dismiss(),
-            },
-          });
-        }
-      },
-      onSuccess: (res) => {
-        toast.success("Usuário criado com sucesso!");
-        setUser(res.data.user);
-      },
-    });
+    await signUp(data);
   }
 
   return (
@@ -196,8 +176,14 @@ export default function SignUp() {
             )}
           />
 
-          <Button variant="default" disabled={isPending} type="submit">
-            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          <Button
+            variant="default"
+            disabled={createUserIsPending}
+            type="submit"
+          >
+            {createUserIsPending && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
             Criar conta
           </Button>
         </form>

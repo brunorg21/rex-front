@@ -47,12 +47,12 @@ export default function User() {
         </Dialog>
       </div>
 
+      {/* <Post />
       <Post />
       <Post />
       <Post />
       <Post />
-      <Post />
-      <Post />
+      <Post /> */}
     </div>
   );
 }

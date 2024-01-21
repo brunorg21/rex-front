@@ -7,14 +7,17 @@ import { Bell, Home, LogOutIcon, Plus, UserRound } from "lucide-react";
 import { ReactNode, useContext } from "react";
 import { ThemeToggle } from "@/components/themes/theme-toggle";
 import { MostComment } from "@/components/most-comments";
-import { useRouter, useSearchParams } from "next/navigation";
-import { deleteCookie } from "cookies-next";
+import { useRouter } from "next/navigation";
+
 import { AuthContext } from "@/context/auth-context";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PostLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
 
-  const { user, signOut } = useContext(AuthContext);
+  const { user, disconnectUser } = useContext(AuthContext);
+
+  console.log("user =>", user);
 
   return (
     <div>
@@ -24,12 +27,20 @@ export default function PostLayout({ children }: { children: ReactNode }) {
             <div className="flex gap-6">
               <UserAvatar size="lg" />
 
-              <div className="flex flex-col">
+              <div className="flex flex-col gap-1">
                 <strong className="text-secondary-foreground text-lg">
-                  {user.name}
+                  {user ? (
+                    <>{user.name}</>
+                  ) : (
+                    <Skeleton className="h-3 w-[150px]" />
+                  )}
                 </strong>
                 <span className="text-muted-foreground text-lg">
-                  @{user.username}
+                  {user ? (
+                    <> @{user.username}</>
+                  ) : (
+                    <Skeleton className="h-5 w-[150px]" />
+                  )}
                 </span>
               </div>
             </div>
@@ -45,21 +56,10 @@ export default function PostLayout({ children }: { children: ReactNode }) {
               </Dialog>
 
               <Button
-                className="flex relative justify-start gap-4 w-full text-lg"
-                variant="ghost"
-                size="lg"
-              >
-                <span className="absolute text-center top-0 bottom-2 left-10 bg-red-600 rounded-full w-5 h-5 text-sm">
-                  0
-                </span>
-                <Bell />
-                Notificações
-              </Button>
-              <Button
                 className="flex gap-4 justify-start w-full text-lg"
                 variant="ghost"
                 size="lg"
-                onClick={() => router.push(`/rex/user/${user.id}`)}
+                onClick={() => router.push(`/rex/user/${user?.id}`)}
               >
                 <UserRound />
                 Meu Perfil
@@ -77,7 +77,7 @@ export default function PostLayout({ children }: { children: ReactNode }) {
           </div>
           <div className="flex space-x-6 p-4">
             <Button
-              onClick={() => signOut()}
+              onClick={async () => await disconnectUser()}
               variant="ghost"
               className="flex gap-2"
             >

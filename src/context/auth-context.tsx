@@ -5,35 +5,31 @@ import { SignInFormData } from "@/app/auth/sign-in/page";
 
 import { UserData } from "@/models/user-model";
 import { ReactNode, createContext, useEffect, useState } from "react";
-import { AxiosError, AxiosResponse } from "axios";
-import { useUserMutation } from "@/api/useUserMutation";
+
+import { useUserService } from "@/api/user-service";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { getCookie, deleteCookie } from "cookies-next";
-import { client } from "@/lib/axios-client";
+import { api } from "@/lib/axios-client";
+import { deleteCookie, getCookie, setCookie } from "cookies-next";
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 interface AuthContextProps {
-  user: UserData;
+  user: UserData | null;
   signIn: (data: SignInFormData) => Promise<void>;
   signUp: (data: SignUpFormData) => Promise<void>;
-  loginIsPeding: boolean;
-  createUserIsPending: boolean;
-  signOut: () => void;
+
+  disconnectUser: () => void;
 }
 
 export const AuthContext = createContext({} as AuthContextProps);
 
 export const AuthContextProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<UserData>({} as UserData);
+  const [user, setUser] = useState<UserData | null>(null);
 
-  const {
-    login: { mutate, isPending: loginIsPeding },
-    createUser: { mutate: createUserMutate, isPending: createUserIsPending },
-  } = useUserMutation();
+  const { login, createUser, signOut, me } = useUserService();
 
   const { push } = useRouter();
 
@@ -42,60 +38,45 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
       const token = getCookie("@token");
 
       if (token) {
-        await client({
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        })
-          .get("/me")
-          .then((response: AxiosResponse) => setUser(response.data.user));
+        const response = await me(token);
 
-        push("/rex");
+        setUser(response.data.user);
       } else {
         push("/auth/sign-in");
       }
     }
-
     recoverUser();
+    push("/rex");
   }, []);
 
-  function signOut() {
+  async function disconnectUser() {
+    await signOut();
     deleteCookie("@token");
     push("/");
   }
 
   async function signIn(data: SignInFormData) {
-    mutate(data, {
-      onError: (error) => {
-        if (error instanceof AxiosError) {
-          toast.error(error?.response?.data.message);
-        }
-      },
-      onSuccess: (res) => {
-        setUser(res.data.user);
-        push("/rex");
-      },
-    });
+    const res = await login(data);
+    api.defaults.withCredentials = true;
+
+    setCookie("@token", res.data.token);
+    setUser(res.data.user);
+
+    push("/rex");
   }
 
   async function signUp(data: SignUpFormData) {
-    createUserMutate(data, {
-      onError: (error) => {
-        if (error instanceof AxiosError) {
-          toast.error(error?.response?.data.message, {
-            cancel: {
-              label: "Fechar",
-              onClick: () => toast.dismiss(),
-            },
-          });
-        }
-      },
-      onSuccess: (res) => {
-        toast.success("Usuário criado com sucesso!");
-        setUser(res.data.user);
-      },
-    });
+    const res = await createUser(data);
+
+    if (res.status === 201) {
+      toast.success("Usuário criado com sucesso!");
+      api.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
+      setUser(res.data.user);
+      localStorage.setItem("@token", res.data.token);
+      push("/auth/sign-in");
+    } else {
+      toast.error("Ocorreu um erro ao criar o usuário!");
+    }
   }
 
   return (
@@ -104,9 +85,8 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
         user,
         signIn,
         signUp,
-        createUserIsPending,
-        loginIsPeding,
-        signOut,
+
+        disconnectUser,
       }}
     >
       {children}

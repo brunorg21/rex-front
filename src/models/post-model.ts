@@ -7,6 +7,7 @@ export interface IPost {
   content: string;
   publishedAt: Date;
   userId: number;
-  attachment: IAttachment;
+  attachments: IAttachment;
   comments: IComment[];
+  likesCount: number;
 }

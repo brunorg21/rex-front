@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
-import { client } from "@/lib/axios-client";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -30,6 +30,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import Link from "next/link";
+import { api } from "@/lib/axios-client";
 
 const feedbackFormSchema = z.object({
   email: z.string().email({
@@ -54,7 +55,7 @@ export default function Home() {
   const router = useRouter();
 
   async function handleSendFeedback(data: FeedbackFormData) {
-    await client().post("/send", data);
+    await api.post("/send", data);
   }
 
   return (

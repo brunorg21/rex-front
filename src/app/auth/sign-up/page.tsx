@@ -18,7 +18,6 @@ import * as z from "zod";
 
 import { useContext } from "react";
 
-import { useUserMutation } from "@/api/useUserMutation";
 import { AuthContext } from "@/context/auth-context";
 
 const signInFormSchema = z
@@ -56,7 +55,7 @@ const signInFormSchema = z
 export type SignUpFormData = z.infer<typeof signInFormSchema>;
 
 export default function SignUp() {
-  const { signUp, createUserIsPending } = useContext(AuthContext);
+  const { signUp } = useContext(AuthContext);
 
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signInFormSchema),
@@ -178,10 +177,10 @@ export default function SignUp() {
 
           <Button
             variant="default"
-            disabled={createUserIsPending}
+            disabled={form.formState.isSubmitting}
             type="submit"
           >
-            {createUserIsPending && (
+            {form.formState.isSubmitting && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
             Criar conta

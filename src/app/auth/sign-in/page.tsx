@@ -25,7 +25,7 @@ const signUpFormSchema = z.object({
 export type SignInFormData = z.infer<typeof signUpFormSchema>;
 
 export default function SignIn() {
-  const { signIn, loginIsPeding } = useContext(AuthContext);
+  const { signIn } = useContext(AuthContext);
 
   const form = useForm<SignInFormData>({
     resolver: zodResolver(signUpFormSchema),
@@ -90,8 +90,14 @@ export default function SignIn() {
             )}
           />
 
-          <Button variant="default" disabled={loginIsPeding} type="submit">
-            {loginIsPeding && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          <Button
+            variant="default"
+            disabled={form.formState.isSubmitting}
+            type="submit"
+          >
+            {form.formState.isSubmitting && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
             Entrar
           </Button>
         </form>

@@ -1,28 +1,37 @@
+"use client";
 import { Post } from "@/components/post";
 import { api } from "@/lib/axios-client";
 import { IPost } from "@/models/post-model";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 
-import { cookies } from "next/headers";
+export default function Posts() {
+  const { data, isFetching } = useQuery<IPost[]>({
+    queryKey: ["allPosts"],
+    queryFn: async () => {
+      const response = await api.get("/allPosts");
 
-async function getPosts(token: string) {
-  return await api.get("/allPosts", {
-    headers: {
-      Cookie: `auth=${token}`,
+      return response.data;
     },
   });
-}
 
-export default async function Posts() {
-  const token = cookies().get("auth")?.value;
-  const { data } = await getPosts(token!);
+  console.log("posts =>", data);
 
   return (
     <>
-      {data?.map((post: IPost) => (
-        <div key={post.id}>
-          <Post withoutComments actualPost={post} />
+      {isFetching ? (
+        <div className="flex items-center justify-center h-full">
+          <Loader2 className=" h-20 w-20 animate-spin" />
         </div>
-      ))}
+      ) : (
+        <>
+          {data?.map((post: IPost) => (
+            <div key={post.id}>
+              <Post withoutComments actualPost={post} />
+            </div>
+          ))}
+        </>
+      )}
     </>
   );
 }

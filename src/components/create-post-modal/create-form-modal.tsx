@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+"use client";
 import { Button } from "../ui/button";
 import {
   Form,
@@ -11,24 +11,28 @@ import {
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { ToggleGroup } from "../ui/toggle-group";
-import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { Tag } from "../tags";
+import { useMutation } from "@tanstack/react-query";
+import { api } from "@/lib/axios-client";
+import { IPost } from "@/models/post-model";
+
+import { toast } from "sonner";
+import { queryClient } from "@/context/react-query-provider";
 
 const createNewPostSchema = z.object({
   title: z.string().min(5, {
     message: "Título deve ter no minímo 5 caracteres",
   }),
-  content: z.string().max(200, {
-    message: "Postagem pode conter no máximo 200 caracteres",
+  content: z.string().max(460, {
+    message: "Postagem pode conter no máximo 460 caracteres",
   }),
   image: z.any().optional(),
-  tags: z.array(z.string()).refine((tags) => tags.length > 3, {
-    message: "Número de tags excedido!",
-  }),
+  tags: z.array(z.string()),
 });
 
 type CreateNewPostFormData = z.infer<typeof createNewPostSchema>;
@@ -44,6 +48,21 @@ export function CreateFormModal() {
     },
   });
 
+  const { mutate: createNewPost } = useMutation({
+    mutationFn: async (newPost: CreateNewPostFormData) => {
+      const formData = new FormData();
+
+      formData.append("file", newPost.image[0]);
+      formData.append("title", newPost.title);
+      formData.append("content", newPost.content);
+
+      return await api.post("/post", formData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allPosts"] });
+      toast.success("Postagem publicada! 🤘🏻");
+    },
+  });
   useEffect(() => {
     if (form.formState.isSubmitSuccessful) {
       form.reset({
@@ -55,8 +74,8 @@ export function CreateFormModal() {
     }
   }, [form.formState.isSubmitSuccessful]);
 
-  function handleCreateNewPost(data: any) {
-    console.log(data);
+  function handleCreateNewPost(data: CreateNewPostFormData) {
+    createNewPost(data);
   }
   return (
     <Form {...form}>
@@ -81,7 +100,7 @@ export function CreateFormModal() {
           )}
         />
 
-        <FormField
+        {/* <FormField
           control={form.control}
           name="tags"
           render={({ field }) => (
@@ -123,7 +142,7 @@ export function CreateFormModal() {
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
 
         <FormField
           control={form.control}

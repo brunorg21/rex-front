@@ -34,24 +34,25 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
   const { push } = useRouter();
 
   useEffect(() => {
+    const token = localStorage.getItem("@token");
     async function recoverUser() {
-      const token = getCookie("@token");
+      const response = await me();
 
-      if (token) {
-        const response = await me(token);
-
-        setUser(response.data.user);
-      } else {
-        push("/auth/sign-in");
-      }
+      setUser(response.data.user);
+      push("/rex");
     }
-    recoverUser();
-    push("/rex");
+
+    if (token) {
+      recoverUser();
+    } else {
+      push("/");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function disconnectUser() {
     await signOut();
-    deleteCookie("@token");
+    localStorage.removeItem("@token");
     push("/");
   }
 
@@ -59,7 +60,7 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
     const res = await login(data);
     api.defaults.withCredentials = true;
 
-    setCookie("@token", res.data.token);
+    localStorage.setItem("@token", res.data.token);
     setUser(res.data.user);
 
     push("/rex");

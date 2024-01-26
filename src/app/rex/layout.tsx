@@ -17,8 +17,6 @@ export default function PostLayout({ children }: { children: ReactNode }) {
 
   const { user, disconnectUser } = useContext(AuthContext);
 
-  console.log("user =>", user);
-
   return (
     <div>
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 p-6">

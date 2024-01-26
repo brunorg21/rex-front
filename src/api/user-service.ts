@@ -5,7 +5,9 @@ import { CookieValueTypes } from "cookies-next";
 
 export const useUserService = () => {
   async function login(data: SignInFormData) {
-    return await api.post("/user/login", data);
+    return await api.post("/user/login", data, {
+      withCredentials: true,
+    });
   }
 
   async function createUser(data: SignUpFormData) {
@@ -16,8 +18,8 @@ export const useUserService = () => {
     return await api.get("/sign-out");
   }
 
-  async function me(token: CookieValueTypes) {
-    return await api.get("/me", {});
+  async function me() {
+    return await api.get("/me");
   }
 
   return {

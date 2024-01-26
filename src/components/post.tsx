@@ -15,8 +15,12 @@ import { UserAvatar } from "./user-avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { IPost } from "@/models/post-model";
-import { Skeleton } from "./ui/skeleton";
+
 import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { api } from "@/lib/axios-client";
+import { queryClient } from "@/context/react-query-provider";
+import { toast } from "sonner";
 
 interface PostProps {
   withoutComments?: boolean;
@@ -24,12 +28,21 @@ interface PostProps {
   postLoading?: boolean;
 }
 
-export function Post({
-  withoutComments = false,
-  actualPost,
-  postLoading,
-}: PostProps) {
+export function Post({ withoutComments = false, actualPost }: PostProps) {
   const { push } = useRouter();
+
+  const { mutate: deletePost } = useMutation({
+    mutationFn: async (postId: number) => {
+      return await api.delete(`/post/${postId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allPosts"] });
+      toast.success("Postagem deletada! 🗑️🗑️");
+    },
+    onError: () => {
+      toast.error("Ocorreu um erro ao publicar a postagem! 😭😭😭");
+    },
+  });
 
   return (
     <Card className="shadow-md border-muted">
@@ -38,9 +51,11 @@ export function Post({
           <div className="flex gap-4">
             <UserAvatar />
             <div className="flex flex-col gap-0.5">
-              <strong className="text-lg">Bruno Rafael</strong>
+              <strong className="text-lg">{actualPost.user.name}</strong>
 
-              <span className="text-muted-foreground text-sm">@bruno</span>
+              <span className="text-muted-foreground text-sm">
+                @{actualPost.user.username}
+              </span>
             </div>
           </div>
 
@@ -50,8 +65,9 @@ export function Post({
             </PopoverTrigger>
             <PopoverContent className="flex flex-col w-40 space-y-4">
               <Button
-                variant="destructive"
-                className="flex gap-4 justify-start"
+                onClick={() => deletePost(actualPost.id)}
+                variant="ghost"
+                className="flex gap-4 justify-start text-red-700  dark:text-red-400 hover:text-red-400"
               >
                 <Trash2Icon className="h-5 w-5" />
                 <span>Excluir</span>
@@ -77,11 +93,11 @@ export function Post({
         </div>
 
         <img
-          className="rounded-md max-h-96 object-cover"
-          src={actualPost.attachments.path}
+          className="rounded-md max-h-[600px] object-cover"
+          src={`http://localhost:3333${actualPost.attachments?.path}`}
           alt="Postagem"
           width={600}
-          height={300}
+          height={400}
         />
 
         <div className="flex gap-2">

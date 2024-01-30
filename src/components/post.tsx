@@ -21,6 +21,8 @@ import { useMutation } from "@tanstack/react-query";
 import { api } from "@/lib/axios-client";
 import { queryClient } from "@/context/react-query-provider";
 import { toast } from "sonner";
+import React, { useContext } from "react";
+import { AuthContext } from "@/context/auth-context";
 
 interface PostProps {
   withoutComments?: boolean;
@@ -30,6 +32,7 @@ interface PostProps {
 
 export function Post({ withoutComments = false, actualPost }: PostProps) {
   const { push } = useRouter();
+  const { user } = useContext(AuthContext);
 
   const { mutate: deletePost } = useMutation({
     mutationFn: async (postId: number) => {
@@ -49,7 +52,7 @@ export function Post({ withoutComments = false, actualPost }: PostProps) {
       <CardHeader className="space-y-3">
         <div className="flex justify-between">
           <div className="flex gap-4">
-            <UserAvatar />
+            <UserAvatar avatarUrl={actualPost.user.avatar_url} />
             <div className="flex flex-col gap-0.5">
               <strong className="text-lg">{actualPost.user.name}</strong>
 
@@ -59,25 +62,27 @@ export function Post({ withoutComments = false, actualPost }: PostProps) {
             </div>
           </div>
 
-          <Popover>
-            <PopoverTrigger>
-              <MoreVertical />
-            </PopoverTrigger>
-            <PopoverContent className="flex flex-col w-40 space-y-4">
-              <Button
-                onClick={() => deletePost(actualPost.id)}
-                variant="ghost"
-                className="flex gap-4 justify-start text-red-700  dark:text-red-400 hover:text-red-400"
-              >
-                <Trash2Icon className="h-5 w-5" />
-                <span>Excluir</span>
-              </Button>
-              <Button variant="ghost" className="flex gap-4 justify-start">
-                <PencilLineIcon className="h-5 w-6" />
-                <span>Editar</span>
-              </Button>
-            </PopoverContent>
-          </Popover>
+          {actualPost.userId === user?.id && (
+            <Popover>
+              <PopoverTrigger>
+                <MoreVertical />
+              </PopoverTrigger>
+              <PopoverContent className="flex flex-col w-40 space-y-4">
+                <Button
+                  onClick={() => deletePost(actualPost.id)}
+                  variant="ghost"
+                  className="flex gap-4 justify-start text-red-700  dark:text-red-400 hover:text-red-400"
+                >
+                  <Trash2Icon className="h-5 w-5" />
+                  <span>Excluir</span>
+                </Button>
+                <Button variant="ghost" className="flex gap-4 justify-start">
+                  <PencilLineIcon className="h-5 w-6" />
+                  <span>Editar</span>
+                </Button>
+              </PopoverContent>
+            </Popover>
+          )}
         </div>
         <Separator />
         <CardTitle>{actualPost.title}</CardTitle>
@@ -85,11 +90,13 @@ export function Post({ withoutComments = false, actualPost }: PostProps) {
       <CardContent className="flex flex-col space-y-4">
         <p>{actualPost.content}</p>
         <div className="flex gap-4">
-          <Badge variant="outline">#viagem</Badge>
-
-          <Badge variant="outline">#paisagem</Badge>
-
-          <Badge variant="outline">#praia</Badge>
+          {actualPost.tag.map((item) => {
+            return (
+              <React.Fragment key={item.tagName}>
+                <Badge variant="outline">{`#${item.tagName}`}</Badge>
+              </React.Fragment>
+            );
+          })}
         </div>
 
         <img

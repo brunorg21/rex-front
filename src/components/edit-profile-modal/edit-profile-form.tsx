@@ -14,10 +14,14 @@ import { Textarea } from "../ui/textarea";
 import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { UserData } from "@/models/user-model";
+import { useMutation } from "@tanstack/react-query";
+import { api } from "@/lib/axios-client";
+import { toast } from "sonner";
 
 const editProfileFormSchema = z.object({
-  name: z.string().max(12, {
-    message: "Nome precisa conter no máximo 12 caracteres",
+  name: z.string().max(40, {
+    message: "Nome precisa conter no máximo 40 caracteres",
   }),
   username: z.string().max(12, {
     message: "Usuário precisa conter no máximo 12 caracteres",
@@ -30,18 +34,37 @@ const editProfileFormSchema = z.object({
 
 type EditProfileFormData = z.infer<typeof editProfileFormSchema>;
 
-export function EditProfileForm() {
+interface EditProfileFormlProps {
+  currentUser: UserData | null;
+}
+
+export function EditProfileForm({ currentUser }: EditProfileFormlProps) {
+  const [file, setFile] = useState<any>("");
+
+  const { mutate: updateProfile } = useMutation({
+    mutationFn: async (profile: EditProfileFormData) => {
+      const formData = new FormData();
+
+      formData.append("avatarUrl", profile.image[0]);
+      formData.append("name", profile.name);
+      formData.append("username", profile.username);
+      formData.append("bio", profile.bio);
+
+      return await api.put("/user", formData);
+    },
+    onSuccess: () => {
+      toast.success("Usuário atualizado");
+    },
+  });
   const form = useForm<EditProfileFormData>({
     resolver: zodResolver(editProfileFormSchema),
     defaultValues: {
-      bio: "",
-      image: null,
-      name: "",
-      username: "",
+      bio: currentUser?.bio ?? "",
+      image: currentUser?.avatar_url,
+      name: currentUser?.name,
+      username: currentUser?.username,
     },
   });
-
-  const [file, setFile] = useState<any>("");
 
   const fileToDataUri = (file: File) =>
     new Promise((resolve, reject) => {
@@ -52,8 +75,8 @@ export function EditProfileForm() {
       reader.readAsDataURL(file);
     });
 
-  async function handleEditProfile(data: any) {
-    console.log(data);
+  async function handleEditProfile(data: EditProfileFormData) {
+    await updateProfile(data);
   }
 
   function handleChangeImage(file: File) {

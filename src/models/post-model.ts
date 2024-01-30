@@ -7,6 +7,10 @@ interface IUserRelatedWithPost {
   avatar_url: string;
   username: string;
 }
+
+interface ITag {
+  tagName: string;
+}
 export interface IPost {
   id: number;
   title: string;
@@ -17,4 +21,5 @@ export interface IPost {
   comments: IComment[];
   likesCount: number;
   user: IUserRelatedWithPost;
+  tag: ITag[];
 }

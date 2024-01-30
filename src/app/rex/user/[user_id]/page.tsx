@@ -13,19 +13,21 @@ import { useContext } from "react";
 export default function User() {
   const { user } = useContext(AuthContext);
 
+  console.log(user);
+
   return (
     <div className="flex flex-col p-4 space-y-4">
       <div className="flex items-center justify-center">
-        <UserAvatar size="lg" />
+        <UserAvatar size="lg" avatarUrl={user?.avatar_url} />
       </div>
       <Separator />
 
       <div className="flex justify-between">
         <div className="flex flex-col space-y-2">
-          <span>{user.name}</span>
-          <span className="text-muted-foreground">@{user.username}</span>
+          <span>{user?.name}</span>
+          <span className="text-muted-foreground">@{user?.username}</span>
 
-          <p>Programador Web 😍</p>
+          <p>{user?.bio}</p>
 
           <div className="flex space-x-4">
             <span className="flex gap-2">
@@ -43,7 +45,7 @@ export default function User() {
               Editar Perfil
             </Button>
           </DialogTrigger>
-          <EditProfileModal />
+          <EditProfileModal currentUser={user} />
         </Dialog>
       </div>
 

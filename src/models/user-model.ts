@@ -4,6 +4,7 @@ export interface UserData {
   username: string;
   email: string;
   avatar_url: string | null;
+  bio: string;
 }
 
 export interface IUser {

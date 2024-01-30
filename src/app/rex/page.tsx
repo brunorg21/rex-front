@@ -15,8 +15,6 @@ export default function Posts() {
     },
   });
 
-  console.log("posts =>", data);
-
   return (
     <>
       {isFetching ? (

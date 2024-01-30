@@ -43,7 +43,7 @@ export function CreateFormModal() {
     defaultValues: {
       content: "",
       title: "",
-      image: null,
+      image: [],
       tags: [],
     },
   });
@@ -55,6 +55,8 @@ export function CreateFormModal() {
       formData.append("file", newPost.image[0]);
       formData.append("title", newPost.title);
       formData.append("content", newPost.content);
+
+      formData.append("tags", JSON.stringify(newPost.tags));
 
       return await api.post("/post", formData);
     },
@@ -100,7 +102,7 @@ export function CreateFormModal() {
           )}
         />
 
-        {/* <FormField
+        <FormField
           control={form.control}
           name="tags"
           render={({ field }) => (
@@ -142,7 +144,7 @@ export function CreateFormModal() {
               <FormMessage />
             </FormItem>
           )}
-        /> */}
+        />
 
         <FormField
           control={form.control}

@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/axios-client";
 import { deleteCookie, getCookie, setCookie } from "cookies-next";
+import { AxiosError } from "axios";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -36,10 +37,16 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const token = localStorage.getItem("@token");
     async function recoverUser() {
-      const response = await me();
+      try {
+        const response = await me();
 
-      setUser(response.data.user);
-      push("/rex");
+        setUser(response.data.user);
+        push("/rex");
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          toast.error(error.response?.data.message);
+        }
+      }
     }
 
     if (token) {
@@ -57,13 +64,18 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
   }
 
   async function signIn(data: SignInFormData) {
-    const res = await login(data);
-    api.defaults.withCredentials = true;
+    try {
+      const res = await login(data);
+      api.defaults.withCredentials = true;
 
-    localStorage.setItem("@token", res.data.token);
-    setUser(res.data.user);
-
-    push("/rex");
+      localStorage.setItem("@token", res.data.token);
+      setUser(res.data.user);
+      push("/rex");
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data.message);
+      }
+    }
   }
 
   async function signUp(data: SignUpFormData) {

@@ -23,7 +23,7 @@ export default function PostLayout({ children }: { children: ReactNode }) {
         <section className="flex flex-col justify-between sm:col-span-1 h-[55rem] overflow-hidden sticky top-0">
           <div className="flex flex-col p-4 rounded-sm min-h-[40rem] gap-4">
             <div className="flex gap-6">
-              <UserAvatar size="lg" />
+              <UserAvatar avatarUrl={user?.avatar_url} size="lg" />
 
               <div className="flex flex-col gap-1">
                 <strong className="text-secondary-foreground text-lg">

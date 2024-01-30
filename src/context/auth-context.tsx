@@ -4,7 +4,14 @@ import { SignUpFormData } from "@/app/auth/sign-up/page";
 import { SignInFormData } from "@/app/auth/sign-in/page";
 
 import { UserData } from "@/models/user-model";
-import { ReactNode, createContext, useEffect, useState } from "react";
+import {
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  createContext,
+  useEffect,
+  useState,
+} from "react";
 
 import { useUserService } from "@/api/user-service";
 import { toast } from "sonner";
@@ -12,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { api } from "@/lib/axios-client";
 import { deleteCookie, getCookie, setCookie } from "cookies-next";
 import { AxiosError } from "axios";
+import { useQuery } from "@tanstack/react-query";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -21,7 +29,7 @@ interface AuthContextProps {
   user: UserData | null;
   signIn: (data: SignInFormData) => Promise<void>;
   signUp: (data: SignUpFormData) => Promise<void>;
-
+  setUser: Dispatch<SetStateAction<UserData | null>>;
   disconnectUser: () => void;
 }
 
@@ -55,7 +63,7 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
       push("/");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [setUser]);
 
   async function disconnectUser() {
     await signOut();
@@ -96,9 +104,9 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
     <AuthContext.Provider
       value={{
         user,
+        setUser,
         signIn,
         signUp,
-
         disconnectUser,
       }}
     >

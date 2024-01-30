@@ -11,13 +11,14 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UserData } from "@/models/user-model";
 import { useMutation } from "@tanstack/react-query";
 import { api } from "@/lib/axios-client";
 import { toast } from "sonner";
+import { AuthContext } from "@/context/auth-context";
 
 const editProfileFormSchema = z.object({
   name: z.string().max(40, {
@@ -39,6 +40,8 @@ interface EditProfileFormlProps {
 }
 
 export function EditProfileForm({ currentUser }: EditProfileFormlProps) {
+  const { setUser } = useContext(AuthContext);
+
   const [file, setFile] = useState<any>("");
 
   const { mutate: updateProfile } = useMutation({
@@ -52,7 +55,8 @@ export function EditProfileForm({ currentUser }: EditProfileFormlProps) {
 
       return await api.put("/user", formData);
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
+      setUser(response.data);
       toast.success("Usuário atualizado");
     },
   });

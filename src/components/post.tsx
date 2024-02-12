@@ -17,12 +17,13 @@ import { Badge } from "./ui/badge";
 import { IPost } from "@/models/post-model";
 
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/axios-client";
 import { queryClient } from "@/context/react-query-provider";
 import { toast } from "sonner";
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "@/context/auth-context";
+import { ILikes } from "@/models/likes";
 
 interface PostProps {
   withoutComments?: boolean;
@@ -33,6 +34,14 @@ interface PostProps {
 export function Post({ withoutComments = false, actualPost }: PostProps) {
   const { push } = useRouter();
   const { user } = useContext(AuthContext);
+  const [userAlreadyLikeThisPost, setUserAlreadyLikeThisPost] =
+    useState<boolean>();
+
+  useEffect(() => {
+    setUserAlreadyLikeThisPost(
+      !!actualPost.like.find((like) => like.userId === user?.id)
+    );
+  }, []);
 
   const { mutate: deletePost } = useMutation({
     mutationFn: async (postId: number) => {
@@ -47,17 +56,62 @@ export function Post({ withoutComments = false, actualPost }: PostProps) {
     },
   });
 
+  console.log(actualPost);
+
+  const { mutate: handleLike } = useMutation({
+    mutationFn: async ({ postId }: any) => {
+      return api.post(`/likeOnPost/${postId}`);
+    },
+    onSuccess: (response) => {
+      queryClient.setQueryData(["allPosts"], (data: IPost[]) => {
+        const postIndex = data.findIndex(
+          (post) => post.id === response.data.postId
+        );
+
+        setUserAlreadyLikeThisPost(response.data.like.userId === user?.id);
+
+        if (postIndex !== -1) {
+          data[postIndex].likesCount += 1;
+        }
+        return [...data];
+      });
+    },
+  });
+  const { mutate: handleDeleteLike } = useMutation({
+    mutationFn: async ({ postId }: any) => {
+      return api.delete(`/likeOnPost/${postId}`);
+    },
+    onSuccess: (response) => {
+      queryClient.setQueryData(["allPosts"], (data: IPost[]) => {
+        const postIndex = data.findIndex(
+          (post) => post.id === Number(response.data.postId)
+        );
+
+        const isLikeRelated = response.data.likes.find(
+          (like: ILikes) => like.userId === user?.id
+        );
+
+        setUserAlreadyLikeThisPost(isLikeRelated);
+
+        if (postIndex !== -1) {
+          data[postIndex].likesCount -= 1;
+        }
+        return [...data];
+      });
+    },
+  });
+
   return (
     <Card className="shadow-md border-muted">
       <CardHeader className="space-y-3">
         <div className="flex justify-between">
           <div className="flex gap-4">
-            <UserAvatar avatarUrl={actualPost.user.avatar_url} />
+            <UserAvatar avatarUrl={actualPost.user?.avatar_url} />
             <div className="flex flex-col gap-0.5">
-              <strong className="text-lg">{actualPost.user.name}</strong>
+              <strong className="text-lg">{actualPost.user?.name}</strong>
 
               <span className="text-muted-foreground text-sm">
-                @{actualPost.user.username}
+                @{actualPost.user?.username}
               </span>
             </div>
           </div>
@@ -75,10 +129,6 @@ export function Post({ withoutComments = false, actualPost }: PostProps) {
                 >
                   <Trash2Icon className="h-5 w-5" />
                   <span>Excluir</span>
-                </Button>
-                <Button variant="ghost" className="flex gap-4 justify-start">
-                  <PencilLineIcon className="h-5 w-6" />
-                  <span>Editar</span>
                 </Button>
               </PopoverContent>
             </Popover>
@@ -110,9 +160,22 @@ export function Post({ withoutComments = false, actualPost }: PostProps) {
         <div className="flex gap-2">
           <div className="flex content-center items-center gap-2">
             <Button
+              onClick={() => {
+                if (!userAlreadyLikeThisPost) {
+                  handleLike({
+                    postId: actualPost.id,
+                  });
+                } else {
+                  handleDeleteLike({
+                    postId: actualPost.id,
+                  });
+                }
+              }}
               size="icon"
               variant="outline"
-              className="rounded-full transition ease-in-out delay-80 duration-300"
+              className={`rounded-full transition ease-in-out delay-80 duration-300 ${
+                userAlreadyLikeThisPost && "bg-slate-800"
+              }`}
             >
               <ThumbsUp size={20} />
             </Button>

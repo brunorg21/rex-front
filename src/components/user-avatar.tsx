@@ -8,7 +8,9 @@ interface UserAvatarProps {
 
 export function UserAvatar({ size = "sm", avatarUrl }: UserAvatarProps) {
   return (
-    <Avatar className={`${size === "lg" ? "h-24 w-24" : "h-12 w-12"}`}>
+    <Avatar
+      className={`${size === "lg" ? "h-[115px] w-[120px]" : "h-12 w-12"}`}
+    >
       <AvatarImage src={`http://localhost:3333${avatarUrl}`} />
       <AvatarFallback>
         <UserIcon />

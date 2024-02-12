@@ -1,5 +1,6 @@
 import { IAttachment } from "./attachment-model";
 import { IComment } from "./comment-model";
+import { ILikes } from "./likes";
 import { IUser } from "./user-model";
 
 interface IUserRelatedWithPost {
@@ -22,4 +23,5 @@ export interface IPost {
   likesCount: number;
   user: IUserRelatedWithPost;
   tag: ITag[];
+  like: ILikes[];
 }

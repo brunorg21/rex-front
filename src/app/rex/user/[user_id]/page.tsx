@@ -1,4 +1,5 @@
 "use client";
+
 import EditProfileModal from "@/components/edit-profile-modal/edit-profile-modal";
 import { Post } from "@/components/post";
 import { Button } from "@/components/ui/button";
@@ -7,13 +8,23 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { UserAvatar } from "@/components/user-avatar";
 import { AuthContext } from "@/context/auth-context";
+import { api } from "@/lib/axios-client";
+import { IPost } from "@/models/post-model";
+import { useQuery } from "@tanstack/react-query";
 import { UserIcon } from "lucide-react";
 import { useContext } from "react";
 
-export default function User() {
+export default function User({ params }: { params: { user_id: string } }) {
   const { user } = useContext(AuthContext);
 
-  console.log(user);
+  const { data: postsByUser } = useQuery({
+    queryKey: ["postsByUser"],
+    queryFn: async () => {
+      const response = await api.get(`/post/user/${params.user_id}`);
+
+      return response.data;
+    },
+  });
 
   return (
     <div className="flex flex-col p-4 space-y-4">
@@ -49,12 +60,15 @@ export default function User() {
         </Dialog>
       </div>
 
-      {/* <Post />
-      <Post />
-      <Post />
-      <Post />
-      <Post />
-      <Post /> */}
+      <Separator orientation="horizontal" />
+
+      {postsByUser?.map((post: IPost) => {
+        return (
+          <div key={post.id}>
+            <Post withoutComments actualPost={post} />
+          </div>
+        );
+      })}
     </div>
   );
 }

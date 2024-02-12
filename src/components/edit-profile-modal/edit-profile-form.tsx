@@ -80,7 +80,7 @@ export function EditProfileForm({ currentUser }: EditProfileFormlProps) {
     });
 
   async function handleEditProfile(data: EditProfileFormData) {
-    await updateProfile(data);
+    updateProfile(data);
   }
 
   function handleChangeImage(file: File) {
@@ -154,6 +154,7 @@ export function EditProfileForm({ currentUser }: EditProfileFormlProps) {
                 htmlFor="image"
               >
                 {file ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={file}
                     alt=""

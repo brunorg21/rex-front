@@ -4,17 +4,31 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 interface UserAvatarProps {
   size?: "lg" | "sm";
   avatarUrl: string | null | undefined;
+  name: string | null;
+  username: string | null;
 }
 
-export function UserAvatar({ size = "sm", avatarUrl }: UserAvatarProps) {
+export function UserAvatar({
+  size = "sm",
+  avatarUrl,
+  name,
+  username,
+}: UserAvatarProps) {
   return (
-    <Avatar
-      className={`${size === "lg" ? "h-[115px] w-[120px]" : "h-12 w-12"}`}
-    >
-      <AvatarImage src={`http://localhost:3333${avatarUrl}`} />
-      <AvatarFallback>
-        <UserIcon />
-      </AvatarFallback>
-    </Avatar>
+    <div className="flex gap-4">
+      <Avatar
+        className={`${size === "lg" ? "h-[115px] w-[120px]" : "h-12 w-12"}`}
+      >
+        <AvatarImage src={`http://localhost:3333${avatarUrl}`} />
+        <AvatarFallback>
+          <UserIcon />
+        </AvatarFallback>
+      </Avatar>
+      <div className="flex flex-col gap-0.5">
+        <strong className="text-lg">{name}</strong>
+
+        <span className="text-muted-foreground text-sm">@{username}</span>
+      </div>
+    </div>
   );
 }

@@ -3,7 +3,14 @@ import PostModal from "@/components/create-post-modal/create-post-modal";
 import { UserAvatar } from "@/components/user-avatar";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import { Bell, Home, LogOutIcon, Plus, UserRound } from "lucide-react";
+import {
+  Bell,
+  Home,
+  LogOutIcon,
+  Plus,
+  UserIcon,
+  UserRound,
+} from "lucide-react";
 import { ReactNode, useContext } from "react";
 import { ThemeToggle } from "@/components/themes/theme-toggle";
 import { MostComment } from "@/components/most-comments";
@@ -11,6 +18,7 @@ import { useRouter } from "next/navigation";
 
 import { AuthContext } from "@/context/auth-context";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function PostLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -23,7 +31,12 @@ export default function PostLayout({ children }: { children: ReactNode }) {
         <section className="flex flex-col justify-between sm:col-span-1 h-[55rem] overflow-hidden sticky top-0">
           <div className="flex flex-col p-4 rounded-sm min-h-[40rem] gap-4">
             <div className="flex gap-6">
-              <UserAvatar avatarUrl={user?.avatar_url} size="lg" />
+              <Avatar className={"w-[120px] h-[120px]"}>
+                <AvatarImage src={`http://localhost:3333${user?.avatar_url}`} />
+                <AvatarFallback>
+                  <UserIcon />
+                </AvatarFallback>
+              </Avatar>
 
               <div className="flex flex-col gap-1">
                 <strong className="text-secondary-foreground text-lg">

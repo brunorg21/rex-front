@@ -1,5 +1,6 @@
 "use client";
 import { Post } from "@/components/post";
+import { Button } from "@/components/ui/button";
 import { api } from "@/lib/axios-client";
 import { IPost } from "@/models/post-model";
 import { useQuery } from "@tanstack/react-query";

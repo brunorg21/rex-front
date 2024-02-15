@@ -2,6 +2,7 @@
 
 import EditProfileModal from "@/components/edit-profile-modal/edit-profile-modal";
 import { Post } from "@/components/post";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
@@ -29,7 +30,12 @@ export default function User({ params }: { params: { user_id: string } }) {
   return (
     <div className="flex flex-col p-4 space-y-4">
       <div className="flex items-center justify-center">
-        <UserAvatar size="lg" avatarUrl={user?.avatar_url} />
+        <Avatar className="w-[280px] h-[280px]">
+          <AvatarImage src={`http://localhost:3333${user?.avatar_url}`} />
+          <AvatarFallback>
+            <UserIcon />
+          </AvatarFallback>
+        </Avatar>
       </div>
       <Separator />
 

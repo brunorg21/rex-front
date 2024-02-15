@@ -1,7 +1,7 @@
 "use client";
-import { usePostsMutation } from "@/api/usePostsMutation";
+
+import { Comment } from "@/components/comment";
 import { Post } from "@/components/post";
-import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/axios-client";
 import { IPost } from "@/models/post-model";
 import { useQuery } from "@tanstack/react-query";
@@ -19,7 +19,6 @@ export default function UniquePost({
 
         return data;
       },
-      refetchOnWindowFocus: false,
     }
   );
 
@@ -27,7 +26,7 @@ export default function UniquePost({
     <div>
       {uniquePost?.map((post) => (
         <div key={post.id}>
-          <Post postLoading={loadingUniquePost} actualPost={post} />
+          <Post actualPost={post} />
         </div>
       ))}
     </div>

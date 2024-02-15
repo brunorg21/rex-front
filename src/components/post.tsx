@@ -2,7 +2,6 @@
 import {
   MessageCircleIcon,
   MoreVertical,
-  PencilLineIcon,
   ThumbsUp,
   Trash2Icon,
 } from "lucide-react";
@@ -24,24 +23,37 @@ import { toast } from "sonner";
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "@/context/auth-context";
 import { ILikes } from "@/models/likes";
+import { getCommentsById } from "@/api/comment-service";
+import { IComment } from "@/models/comment-model";
+import { NewComment } from "./new-comment";
+import { getDistanceTime } from "@/utils/get-distance-time-between-date";
 
 interface PostProps {
   withoutComments?: boolean;
   actualPost: IPost;
-  postLoading?: boolean;
 }
 
 export function Post({ withoutComments = false, actualPost }: PostProps) {
   const { push } = useRouter();
   const { user } = useContext(AuthContext);
+  const [commentToEdit, setCommentToEdit] = useState<IComment | null>(null);
   const [userAlreadyLikeThisPost, setUserAlreadyLikeThisPost] =
-    useState<boolean>();
+    useState<boolean>(
+      !!actualPost.like?.find((like) => like.userId === user?.id)
+    );
 
   useEffect(() => {
     setUserAlreadyLikeThisPost(
-      !!actualPost.like.find((like) => like.userId === user?.id)
+      !!actualPost.like?.find((like) => like.userId === user?.id)
     );
   }, []);
+
+  const { data: comments, isFetching: fetchingComments } = useQuery<IComment[]>(
+    {
+      queryKey: ["comments", actualPost.id],
+      queryFn: () => getCommentsById(actualPost.id),
+    }
+  );
 
   const { mutate: deletePost } = useMutation({
     mutationFn: async (postId: number) => {
@@ -56,19 +68,17 @@ export function Post({ withoutComments = false, actualPost }: PostProps) {
     },
   });
 
-  console.log(actualPost);
-
   const { mutate: handleLike } = useMutation({
     mutationFn: async ({ postId }: any) => {
       return api.post(`/likeOnPost/${postId}`);
     },
     onSuccess: (response) => {
+      setUserAlreadyLikeThisPost(response.data.like.userId === user?.id);
+      queryClient.invalidateQueries({ queryKey: ["uniquePost"] });
       queryClient.setQueryData(["allPosts"], (data: IPost[]) => {
         const postIndex = data.findIndex(
           (post) => post.id === response.data.postId
         );
-
-        setUserAlreadyLikeThisPost(response.data.like.userId === user?.id);
 
         if (postIndex !== -1) {
           data[postIndex].likesCount += 1;
@@ -82,16 +92,12 @@ export function Post({ withoutComments = false, actualPost }: PostProps) {
       return api.delete(`/likeOnPost/${postId}`);
     },
     onSuccess: (response) => {
+      setUserAlreadyLikeThisPost(false);
+      queryClient.invalidateQueries({ queryKey: ["uniquePost"] });
       queryClient.setQueryData(["allPosts"], (data: IPost[]) => {
         const postIndex = data.findIndex(
           (post) => post.id === Number(response.data.postId)
         );
-
-        const isLikeRelated = response.data.likes.find(
-          (like: ILikes) => like.userId === user?.id
-        );
-
-        setUserAlreadyLikeThisPost(isLikeRelated);
 
         if (postIndex !== -1) {
           data[postIndex].likesCount -= 1;
@@ -105,16 +111,11 @@ export function Post({ withoutComments = false, actualPost }: PostProps) {
     <Card className="shadow-md border-muted">
       <CardHeader className="space-y-3">
         <div className="flex justify-between">
-          <div className="flex gap-4">
-            <UserAvatar avatarUrl={actualPost.user?.avatar_url} />
-            <div className="flex flex-col gap-0.5">
-              <strong className="text-lg">{actualPost.user?.name}</strong>
-
-              <span className="text-muted-foreground text-sm">
-                @{actualPost.user?.username}
-              </span>
-            </div>
-          </div>
+          <UserAvatar
+            avatarUrl={actualPost.user.avatar_url}
+            name={actualPost.user.name}
+            username={actualPost.user.username}
+          />
 
           {actualPost.userId === user?.id && (
             <Popover>
@@ -135,7 +136,14 @@ export function Post({ withoutComments = false, actualPost }: PostProps) {
           )}
         </div>
         <Separator />
-        <CardTitle>{actualPost.title}</CardTitle>
+        <CardTitle>
+          <div className="flex justify-between">
+            {actualPost.title}{" "}
+            <span className="text-sm text-muted-foreground">
+              Publicado {getDistanceTime(actualPost.publishedAt)}
+            </span>
+          </div>
+        </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col space-y-4">
         <p>{actualPost.content}</p>
@@ -193,16 +201,25 @@ export function Post({ withoutComments = false, actualPost }: PostProps) {
               <MessageCircleIcon size={20} />
             </Button>
 
-            <strong>20</strong>
+            <strong>{actualPost.comments.length}</strong>
           </div>
         </div>
         <Separator orientation="horizontal" />
         {!withoutComments && (
           <>
-            <Comment />
-            <Comment />
-            <Comment />
-            <Comment />
+            <NewComment
+              setCommentToEdit={setCommentToEdit}
+              commentToEdit={commentToEdit}
+              postId={actualPost.id}
+            />
+            {comments?.map((comment) => (
+              <div key={comment.id}>
+                <Comment
+                  setCommentToEdit={setCommentToEdit}
+                  actualComment={comment}
+                />
+              </div>
+            ))}
           </>
         )}
       </CardContent>

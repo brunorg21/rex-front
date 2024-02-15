@@ -15,11 +15,9 @@ import {
 
 import { useUserService } from "@/api/user-service";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { api } from "@/lib/axios-client";
-import { deleteCookie, getCookie, setCookie } from "cookies-next";
 import { AxiosError } from "axios";
-import { useQuery } from "@tanstack/react-query";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -49,7 +47,6 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
         const response = await me();
 
         setUser(response.data.user);
-        push("/rex");
       } catch (error) {
         if (error instanceof AxiosError) {
           toast.error(error.response?.data.message);

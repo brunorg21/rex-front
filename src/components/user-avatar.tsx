@@ -19,7 +19,10 @@ export function UserAvatar({
       <Avatar
         className={`${size === "lg" ? "h-[115px] w-[120px]" : "h-12 w-12"}`}
       >
-        <AvatarImage src={`http://localhost:3333${avatarUrl}`} />
+        <AvatarImage
+          className="object-cover"
+          src={`http://localhost:3333${avatarUrl}`}
+        />
         <AvatarFallback>
           <UserIcon />
         </AvatarFallback>

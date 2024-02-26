@@ -13,12 +13,12 @@ import {
 } from "lucide-react";
 import { ReactNode, useContext } from "react";
 import { ThemeToggle } from "@/components/themes/theme-toggle";
-import { MostComment } from "@/components/most-comments";
 import { useRouter } from "next/navigation";
 
 import { AuthContext } from "@/context/auth-context";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { SearchUsers } from "@/components/search-users";
 
 export default function PostLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -27,12 +27,15 @@ export default function PostLayout({ children }: { children: ReactNode }) {
 
   return (
     <div>
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 p-6">
-        <section className="flex flex-col justify-between sm:col-span-1 h-[55rem] overflow-hidden sticky top-0">
+      <div className="grid grid-cols-1  md:grid-cols-4 gap-3 p-6">
+        <section className="flex flex-col justify-between md:col-span-1 h-[55rem] overflow-hidden md:sticky top-0">
           <div className="flex flex-col p-4 rounded-sm min-h-[40rem] gap-4">
-            <div className="flex gap-6">
+            <div className="flex gap-6 md:flex-col lg:flex-row">
               <Avatar className={"w-[120px] h-[120px]"}>
-                <AvatarImage src={`http://localhost:3333${user?.avatar_url}`} />
+                <AvatarImage
+                  className="object-cover"
+                  src={`http://localhost:3333${user?.avatar_url}`}
+                />
                 <AvatarFallback>
                   <UserIcon />
                 </AvatarFallback>
@@ -55,11 +58,11 @@ export default function PostLayout({ children }: { children: ReactNode }) {
                 </span>
               </div>
             </div>
-            <div className="flex flex-col items-start gap-6">
+            <div className="flex flex-col gap-6">
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button className="flex gap-4 text-md" variant="outline">
-                    <Plus />
+                  <Button className="flex gap-4 text-md " variant="outline">
+                    <Plus size={20} />
                     Nova publicação
                   </Button>
                 </DialogTrigger>
@@ -67,21 +70,21 @@ export default function PostLayout({ children }: { children: ReactNode }) {
               </Dialog>
 
               <Button
-                className="flex gap-4 justify-start w-full text-lg"
+                className="flex gap-4 justify-start text-md"
                 variant="ghost"
-                size="lg"
+                size="default"
                 onClick={() => router.push(`/rex/user/${user?.id}`)}
               >
-                <UserRound />
+                <UserRound size={20} />
                 Meu Perfil
               </Button>
               <Button
-                className="flex gap-4 justify-start w-full text-lg"
+                className="flex gap-4 justify-start text-md"
                 variant="ghost"
-                size="lg"
+                size="default"
                 onClick={() => router.push("/rex")}
               >
-                <Home />
+                <Home size={20} />
                 Página Inicial
               </Button>
             </div>
@@ -97,11 +100,11 @@ export default function PostLayout({ children }: { children: ReactNode }) {
             <ThemeToggle />
           </div>
         </section>
-        <main className="flex flex-col gap-4 col-span-1 sm:col-span-2 overflow-y-auto">
+        <main className="flex flex-col gap-4 col-span-1 md:col-span-2  overflow-y-auto">
           {children}
         </main>
-        <section className="col-span-1 h-[55rem] sticky top-0">
-          <MostComment />
+        <section>
+          <SearchUsers />
         </section>
       </div>
     </div>

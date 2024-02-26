@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import {
+  Loader2,
   MessageCircleIcon,
   MoreVertical,
   ThumbsUp,
@@ -49,12 +50,12 @@ export function Post({ withoutComments = false, actualPost }: PostProps) {
     );
   }, []);
 
-  const { data: comments, isFetching: fetchingComments } = useQuery<IComment[]>(
-    {
-      queryKey: ["comments", actualPost.id],
-      queryFn: () => getCommentsById(actualPost.id),
-    }
-  );
+  const { data: comments, isFetching: isCommentsLoading } = useQuery<
+    IComment[]
+  >({
+    queryKey: ["comments", actualPost.id],
+    queryFn: () => getCommentsById(actualPost.id),
+  });
 
   const { mutate: deletePost } = useMutation({
     mutationFn: async (postId: number) => {
@@ -76,6 +77,7 @@ export function Post({ withoutComments = false, actualPost }: PostProps) {
     onSuccess: (response) => {
       setUserAlreadyLikeThisPost(response.data.like.userId === user?.id);
       queryClient.invalidateQueries({ queryKey: ["uniquePost"] });
+      queryClient.invalidateQueries({ queryKey: ["postsByUser"] });
       queryClient.setQueryData(["allPosts"], (data: IPost[]) => {
         const postIndex = data.findIndex(
           (post) => post.id === response.data.postId
@@ -95,6 +97,7 @@ export function Post({ withoutComments = false, actualPost }: PostProps) {
     onSuccess: (response) => {
       setUserAlreadyLikeThisPost(false);
       queryClient.invalidateQueries({ queryKey: ["uniquePost"] });
+      queryClient.invalidateQueries({ queryKey: ["postsByUser"] });
       queryClient.setQueryData(["allPosts"], (data: IPost[]) => {
         const postIndex = data.findIndex(
           (post) => post.id === Number(response.data.postId)
@@ -183,7 +186,7 @@ export function Post({ withoutComments = false, actualPost }: PostProps) {
               size="icon"
               variant="outline"
               className={`rounded-full transition ease-in-out delay-80 duration-300 ${
-                userAlreadyLikeThisPost && "bg-slate-800"
+                userAlreadyLikeThisPost && "dark:bg-slate-800 bg-slate-200"
               }`}
             >
               <ThumbsUp size={20} />
@@ -213,14 +216,21 @@ export function Post({ withoutComments = false, actualPost }: PostProps) {
               commentToEdit={commentToEdit}
               postId={actualPost.id}
             />
-            {comments?.map((comment) => (
-              <div key={comment.id}>
-                <Comment
-                  setCommentToEdit={setCommentToEdit}
-                  actualComment={comment}
-                />
-              </div>
-            ))}
+
+            {isCommentsLoading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                {comments?.map((comment) => (
+                  <div key={comment.id}>
+                    <Comment
+                      setCommentToEdit={setCommentToEdit}
+                      actualComment={comment}
+                    />
+                  </div>
+                ))}
+              </>
+            )}
           </>
         )}
       </CardContent>

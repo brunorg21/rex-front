@@ -17,7 +17,7 @@ import { useUserService } from "@/api/user-service";
 import { toast } from "sonner";
 import { usePathname, useRouter } from "next/navigation";
 import { api } from "@/lib/axios-client";
-import { AxiosError } from "axios";
+import { AxiosError, isAxiosError } from "axios";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -39,6 +39,24 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
   const { login, createUser, signOut, me } = useUserService();
 
   const { push } = useRouter();
+
+  useEffect(() => {
+    const interceptorId = api.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (isAxiosError(error)) {
+          console.log(error);
+          if (error.response?.status === 401) {
+            push("/");
+          }
+        }
+      }
+    );
+
+    return () => {
+      api.interceptors.response.eject(interceptorId);
+    };
+  }, [push]);
 
   useEffect(() => {
     const token = localStorage.getItem("@token");

@@ -52,13 +52,6 @@ export function NewComment({
     },
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["comments"] });
-      queryClient.setQueryData(["uniquePost"], (data: IPost[]) => {
-        const postIndex = data.findIndex((post) => post.id === postId);
-
-        data[postIndex].comments.push(response.data);
-
-        return [...data];
-      });
     },
   });
   const { mutate: editComment } = useMutation({

@@ -5,6 +5,10 @@ import { AuthContextProvider } from "@/context/auth-context";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/themes/theme-provider";
 import { ReactQueryProvider } from "@/context/react-query-provider";
+import { useEffect } from "react";
+import { api } from "@/lib/axios-client";
+import { isAxiosError } from "axios";
+import { useRouter } from "next/navigation";
 
 const roboto = Roboto({ subsets: ["latin"], weight: ["400", "700"] });
 
@@ -31,7 +35,7 @@ export default function RootLayout({
             >
               {children}
             </ThemeProvider>
-            <Toaster />
+            <Toaster richColors />
           </body>
         </AuthContextProvider>
       </ReactQueryProvider>

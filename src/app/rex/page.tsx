@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { api } from "@/lib/axios-client";
 import { IPost } from "@/models/post-model";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { FileX2, Loader2 } from "lucide-react";
 
 export default function Posts() {
   const { data, isFetching } = useQuery<IPost[]>({
@@ -24,11 +24,25 @@ export default function Posts() {
         </div>
       ) : (
         <>
-          {data?.map((post: IPost) => (
-            <div key={post.id}>
-              <Post withoutComments actualPost={post} />
+          {data?.length !== 0 ? (
+            <>
+              {data?.map((post: IPost) => (
+                <div key={post.id}>
+                  <Post withoutComments actualPost={post} />
+                </div>
+              ))}
+            </>
+          ) : (
+            <div className="flex flex-col justify-center items-center gap-12 h-56 text-xl">
+              <div className="flex gap-2">
+                Ainda não temos nenhuma publicação, para começar clique em
+                <strong>Nova Publicação</strong>
+              </div>
+              <div>
+                <FileX2 size={60} />
+              </div>
             </div>
-          ))}
+          )}
         </>
       )}
     </>

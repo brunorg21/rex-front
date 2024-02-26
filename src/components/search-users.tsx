@@ -47,7 +47,7 @@ export function SearchUsers() {
               >
                 <Avatar className={"w-[60px] h-[60px]"}>
                   <AvatarImage
-                    src={`${process.env.NEXT_PUBLIC_API_URL}${user?.avatar_url}`}
+                    src={`${process.env.NEXT_PUBLIC_API_URL}/${user?.avatar_url}`}
                   />
                   <AvatarFallback>
                     <UserIcon />

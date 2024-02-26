@@ -21,7 +21,7 @@ export function UserAvatar({
       >
         <AvatarImage
           className="object-cover"
-          src={`${process.env.NEXT_PUBLIC_API_URL}${avatarUrl}`}
+          src={`${process.env.NEXT_PUBLIC_API_URL}/${avatarUrl}`}
         />
         <AvatarFallback>
           <UserIcon />

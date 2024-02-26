@@ -34,7 +34,7 @@ export default function PostLayout({ children }: { children: ReactNode }) {
               <Avatar className={"w-[120px] h-[120px]"}>
                 <AvatarImage
                   className="object-cover"
-                  src={`${process.env.BASE_URL}${user?.avatar_url}`}
+                  src={`${process.env.NEXT_PUBLIC_API_URL}${user?.avatar_url}`}
                 />
                 <AvatarFallback>
                   <UserIcon />

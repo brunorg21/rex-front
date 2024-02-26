@@ -76,7 +76,7 @@ export default function User({ params }: { params: { user_id: string } }) {
         <Avatar className="w-[180px] h-[180px]">
           <AvatarImage
             className="object-cover"
-            src={`${process.env.BASE_URL}${
+            src={`${process.env.NEXT_PUBLIC_API_URL}${
               user?.id === currentUser?.id
                 ? currentUser?.avatar_url
                 : user?.avatar_url

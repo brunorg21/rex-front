@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "http://localhost:3333",
+  baseURL: process.env.BASE_URL,
   withCredentials: true,
   headers: {
     "Cache-Control": "no-cache",

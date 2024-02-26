@@ -1,6 +1,5 @@
 "use client";
 
-import { Comment } from "@/components/comment";
 import { Post } from "@/components/post";
 import { api } from "@/lib/axios-client";
 import { IPost } from "@/models/post-model";

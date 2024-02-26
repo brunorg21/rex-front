@@ -47,7 +47,7 @@ export function SearchUsers() {
               >
                 <Avatar className={"w-[60px] h-[60px]"}>
                   <AvatarImage
-                    src={`http://localhost:3333${user?.avatar_url}`}
+                    src={`${process.env.BASE_URL}${user?.avatar_url}`}
                   />
                   <AvatarFallback>
                     <UserIcon />

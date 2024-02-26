@@ -21,7 +21,7 @@ export function UserAvatar({
       >
         <AvatarImage
           className="object-cover"
-          src={`http://localhost:3333${avatarUrl}`}
+          src={`${process.env.BASE_URL}${avatarUrl}`}
         />
         <AvatarFallback>
           <UserIcon />

@@ -89,8 +89,7 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
   async function signIn(data: SignInFormData) {
     try {
       const res = await login(data);
-      api.defaults.withCredentials = true;
-
+      api.defaults.headers.common.Authorization = `Bearer ${res.data.token}`;
       localStorage.setItem("@token", res.data.token);
       setUser(res.data.user);
       push("/rex");

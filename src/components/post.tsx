@@ -163,7 +163,7 @@ export function Post({ withoutComments = false, actualPost }: PostProps) {
 
         <img
           className="rounded-md max-h-[600px] object-cover"
-          src={`http://localhost:3333${actualPost.attachments?.path}`}
+          src={`${process.env.NEXT_PUBLIC_API_URL}${actualPost.attachments?.path}`}
           alt="Postagem"
           width={600}
           height={400}

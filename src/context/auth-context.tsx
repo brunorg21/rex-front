@@ -60,6 +60,7 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     const token = localStorage.getItem("@token");
+    api.defaults.headers.common.Authorization = `Bearer ${token}`;
     async function recoverUser() {
       try {
         const response = await me();

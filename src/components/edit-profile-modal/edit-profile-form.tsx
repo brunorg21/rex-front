@@ -53,7 +53,11 @@ export function EditProfileForm({ currentUser }: EditProfileFormlProps) {
       formData.append("username", profile.username);
       formData.append("bio", profile.bio);
 
-      return await api.put("/user", formData);
+      return await api.put("/user", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
     },
     onSuccess: (response) => {
       setUser(response.data);

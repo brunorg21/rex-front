@@ -58,7 +58,11 @@ export function CreateFormModal() {
 
       formData.append("tags", JSON.stringify(newPost.tags));
 
-      return await api.post("/post", formData);
+      return await api.post("/post", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["allPosts"] });

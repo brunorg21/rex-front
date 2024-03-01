@@ -19,6 +19,7 @@ import { AuthContext } from "@/context/auth-context";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SearchUsers } from "@/components/search-users";
+import Image from "next/image";
 
 export default function PostLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -32,10 +33,14 @@ export default function PostLayout({ children }: { children: ReactNode }) {
           <div className="flex flex-col p-4 rounded-sm min-h-[40rem] gap-4">
             <div className="flex gap-6 md:flex-col lg:flex-row">
               <Avatar className={"w-[120px] h-[120px]"}>
-                <AvatarImage
+                <Image
                   className="object-cover"
-                  src={`${process.env.NEXT_PUBLIC_API_URL}${user?.avatar_url}`}
+                  src={`https://drive.google.com/uc?export=view&id=${user?.avatarUrlId}`}
+                  alt="Foto usuário"
+                  width={200}
+                  height={200}
                 />
+
                 <AvatarFallback>
                   <UserIcon />
                 </AvatarFallback>

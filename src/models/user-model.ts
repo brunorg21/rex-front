@@ -3,7 +3,7 @@ export interface UserData {
   name: string;
   username: string;
   email: string;
-  avatar_url: string | null;
+  avatarUrlId: string | null;
   bio: string;
 }
 

@@ -53,7 +53,7 @@ export function Comment({
       <CardHeader className="space-y-3">
         <div className="flex justify-between">
           <UserAvatar
-            avatarUrl={actualComment.user?.avatar_url}
+            avatarUrl={actualComment.user?.avatarUrlId}
             name={actualComment.user.name}
             username={actualComment.user.username}
           />

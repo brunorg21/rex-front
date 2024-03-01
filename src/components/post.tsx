@@ -29,6 +29,7 @@ import { getCommentsById } from "@/api/comment-service";
 import { IComment } from "@/models/comment-model";
 import { NewComment } from "./new-comment";
 import { getDistanceTime } from "@/utils/get-distance-time-between-date";
+import Image from "next/image";
 
 interface PostProps {
   withoutComments?: boolean;
@@ -58,19 +59,25 @@ export function Post({ withoutComments = false, actualPost }: PostProps) {
   });
 
   const { mutate: deletePost } = useMutation({
-    mutationFn: async (postId: number) => {
-      return await api.delete(`/post/${postId}`);
+    mutationFn: async ({
+      fileId,
+      postId,
+    }: {
+      postId: number;
+      fileId: string;
+    }) => {
+      return await api.delete(`/post/${postId}/${fileId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["allPosts"] });
       toast.success("Postagem deletada! 🗑️🗑️");
     },
     onError: () => {
-      toast.error("Ocorreu um erro ao publicar a postagem! 😭😭😭");
+      toast.error("Ocorreu um erro ao deletar a postagem! 😭😭😭");
     },
   });
 
-  const { mutate: handleLike } = useMutation({
+  const { mutate: handleLike, isPending: likePending } = useMutation({
     mutationFn: async ({ postId }: any) => {
       return api.post(`/likeOnPost/${postId}`);
     },
@@ -90,33 +97,34 @@ export function Post({ withoutComments = false, actualPost }: PostProps) {
       });
     },
   });
-  const { mutate: handleDeleteLike } = useMutation({
-    mutationFn: async ({ postId }: any) => {
-      return api.delete(`/likeOnPost/${postId}`);
-    },
-    onSuccess: (response) => {
-      setUserAlreadyLikeThisPost(false);
-      queryClient.invalidateQueries({ queryKey: ["uniquePost"] });
-      queryClient.invalidateQueries({ queryKey: ["postsByUser"] });
-      queryClient.setQueryData(["allPosts"], (data: IPost[]) => {
-        const postIndex = data.findIndex(
-          (post) => post.id === Number(response.data.postId)
-        );
+  const { mutate: handleDeleteLike, isPending: deleteLikeIsPending } =
+    useMutation({
+      mutationFn: async ({ postId }: any) => {
+        return api.delete(`/likeOnPost/${postId}`);
+      },
+      onSuccess: (response) => {
+        setUserAlreadyLikeThisPost(false);
+        queryClient.invalidateQueries({ queryKey: ["uniquePost"] });
+        queryClient.invalidateQueries({ queryKey: ["postsByUser"] });
+        queryClient.setQueryData(["allPosts"], (data: IPost[]) => {
+          const postIndex = data.findIndex(
+            (post) => post.id === Number(response.data.postId)
+          );
 
-        if (postIndex !== -1) {
-          data[postIndex].likesCount -= 1;
-        }
-        return [...data];
-      });
-    },
-  });
+          if (postIndex !== -1) {
+            data[postIndex].likesCount -= 1;
+          }
+          return [...data];
+        });
+      },
+    });
 
   return (
     <Card className="shadow-md border-muted">
       <CardHeader className="space-y-3">
         <div className="flex justify-between">
           <UserAvatar
-            avatarUrl={actualPost.user.avatar_url}
+            avatarUrl={actualPost.user.avatarUrlId}
             name={actualPost.user.name}
             username={actualPost.user.username}
           />
@@ -128,7 +136,12 @@ export function Post({ withoutComments = false, actualPost }: PostProps) {
               </PopoverTrigger>
               <PopoverContent className="flex flex-col w-40 space-y-4">
                 <Button
-                  onClick={() => deletePost(actualPost.id)}
+                  onClick={() =>
+                    deletePost({
+                      postId: actualPost.id,
+                      fileId: actualPost.imageId,
+                    })
+                  }
                   variant="ghost"
                   className="flex gap-4 justify-start text-red-700  dark:text-red-400 hover:text-red-400"
                 >
@@ -161,17 +174,20 @@ export function Post({ withoutComments = false, actualPost }: PostProps) {
           })}
         </div>
 
-        <img
-          className="rounded-md max-h-[600px] object-cover"
-          src={`${process.env.NEXT_PUBLIC_API_URL}${actualPost.attachments?.path}`}
-          alt="Postagem"
-          width={600}
-          height={400}
-        />
+        {actualPost.imageId && (
+          <Image
+            className="rounded-md max-h-[600px] object-cover"
+            src={`https://drive.google.com/uc?export=view&id=${actualPost.imageId}`}
+            alt="Postagem"
+            width={600}
+            height={400}
+          />
+        )}
 
         <div className="flex gap-2">
           <div className="flex content-center items-center gap-2">
             <Button
+              disabled={likePending || deleteLikeIsPending}
               onClick={() => {
                 if (!userAlreadyLikeThisPost) {
                   handleLike({

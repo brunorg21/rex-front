@@ -23,6 +23,7 @@ import { IPost } from "@/models/post-model";
 
 import { toast } from "sonner";
 import { queryClient } from "@/context/react-query-provider";
+import { Loader2 } from "lucide-react";
 
 const createNewPostSchema = z.object({
   title: z.string().min(5, {
@@ -48,7 +49,7 @@ export function CreateFormModal() {
     },
   });
 
-  const { mutate: createNewPost } = useMutation({
+  const { mutate: createNewPost, isPending } = useMutation({
     mutationFn: async (newPost: CreateNewPostFormData) => {
       const formData = new FormData();
 
@@ -188,8 +189,9 @@ export function CreateFormModal() {
           )}
         />
 
-        <Button variant="default" type="submit">
-          Salvar
+        <Button className="flex gap-2" variant="default" type="submit">
+          {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Publicar
         </Button>
       </form>
     </Form>

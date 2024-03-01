@@ -16,6 +16,7 @@ import { IPost } from "@/models/post-model";
 import { UserData } from "@/models/user-model";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Check, Plus, UserIcon, X } from "lucide-react";
+import Image from "next/image";
 import { useContext, useState } from "react";
 import { toast } from "sonner";
 
@@ -38,6 +39,7 @@ export default function User({ params }: { params: { user_id: string } }) {
       return response.data;
     },
   });
+
   const { data: followers } = useQuery<IFollowerData>({
     queryKey: ["followers"],
     queryFn: async () => {
@@ -70,18 +72,27 @@ export default function User({ params }: { params: { user_id: string } }) {
     (follower) => follower.follower_username === currentUser?.username
   );
 
+  console.log("user =>", user);
+  console.log("currentUser =>", currentUser);
+
   return (
     <div className="flex flex-col p-4 space-y-4">
       <div className="flex items-center justify-center">
         <Avatar className="w-[180px] h-[180px]">
-          <AvatarImage
-            className="object-cover"
-            src={`${process.env.NEXT_PUBLIC_API_URL}${
-              user?.id === currentUser?.id
-                ? currentUser?.avatar_url
-                : user?.avatar_url
-            }`}
-          />
+          {currentUser?.avatarUrlId && user?.avatarUrlId && (
+            <Image
+              className="object-cover"
+              src={`https://drive.google.com/uc?export=view&id=${
+                user?.id === currentUser?.id
+                  ? currentUser?.avatarUrlId
+                  : user?.avatarUrlId
+              }`}
+              alt="Foto usuário"
+              width={200}
+              height={200}
+            />
+          )}
+
           <AvatarFallback>
             <UserIcon />
           </AvatarFallback>

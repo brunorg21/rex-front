@@ -1,5 +1,6 @@
 import { UserIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import Image from "next/image";
 
 interface UserAvatarProps {
   size?: "lg" | "sm";
@@ -19,10 +20,16 @@ export function UserAvatar({
       <Avatar
         className={`${size === "lg" ? "h-[115px] w-[120px]" : "h-12 w-12"}`}
       >
-        <AvatarImage
-          className="object-cover"
-          src={`${process.env.NEXT_PUBLIC_API_URL}${avatarUrl}`}
-        />
+        {avatarUrl && (
+          <Image
+            className="object-cover"
+            src={`https://drive.google.com/uc?export=view&id=${avatarUrl}`}
+            alt="Foto usuário"
+            width={200}
+            height={200}
+          />
+        )}
+
         <AvatarFallback>
           <UserIcon />
         </AvatarFallback>

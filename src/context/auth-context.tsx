@@ -41,24 +41,6 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
   const { push } = useRouter();
 
   useEffect(() => {
-    const interceptorId = api.interceptors.response.use(
-      (response) => response,
-      (error) => {
-        if (isAxiosError(error)) {
-          console.log(error);
-          if (error.response?.status === 401) {
-            push("/");
-          }
-        }
-      }
-    );
-
-    return () => {
-      api.interceptors.response.eject(interceptorId);
-    };
-  }, [push]);
-
-  useEffect(() => {
     const token = localStorage.getItem("@token");
     api.defaults.headers.common.Authorization = `Bearer ${token}`;
     async function recoverUser() {
@@ -90,12 +72,13 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
   async function signIn(data: SignInFormData) {
     try {
       const res = await login(data);
+
       api.defaults.headers.common.Authorization = `Bearer ${res.data.token}`;
       localStorage.setItem("@token", res.data.token);
       setUser(res.data.user);
       push("/rex");
     } catch (error) {
-      if (error instanceof AxiosError) {
+      if (isAxiosError(error)) {
         toast.error(error.response?.data.message);
       }
     }

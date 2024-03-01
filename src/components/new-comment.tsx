@@ -81,7 +81,7 @@ export function NewComment({
   return (
     <div className="space-y-4">
       <UserAvatar
-        avatarUrl={user?.avatar_url}
+        avatarUrl={user?.avatarUrlId}
         name={user && user.name}
         username={user && user.username}
       />

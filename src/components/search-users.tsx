@@ -47,7 +47,7 @@ export function SearchUsers() {
               >
                 <Avatar className={"w-[60px] h-[60px]"}>
                   <AvatarImage
-                    src={`${process.env.NEXT_PUBLIC_API_URL}${user?.avatar_url}`}
+                    src={`https://drive.google.com/uc?export=view&id=${user.avatarUrlId}`}
                   />
                   <AvatarFallback>
                     <UserIcon />

@@ -5,7 +5,7 @@ import { IUser } from "./user-model";
 
 interface IUserRelatedWithPost {
   name: string;
-  avatar_url: string;
+  avatarUrlId: string;
   username: string;
 }
 
@@ -18,7 +18,7 @@ export interface IPost {
   content: string;
   publishedAt: Date;
   userId: number;
-  attachments: IAttachment;
+  imageId: string;
   comments: IComment[];
   likesCount: number;
   user: IUserRelatedWithPost;

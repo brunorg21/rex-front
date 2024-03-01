@@ -68,7 +68,7 @@ export function EditProfileForm({ currentUser }: EditProfileFormlProps) {
     resolver: zodResolver(editProfileFormSchema),
     defaultValues: {
       bio: currentUser?.bio ?? "",
-      image: currentUser?.avatar_url,
+      image: currentUser?.avatarUrlId,
       name: currentUser?.name,
       username: currentUser?.username,
     },

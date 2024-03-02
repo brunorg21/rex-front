@@ -52,6 +52,7 @@ export function NewComment({
     },
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["comments"] });
+      queryClient.invalidateQueries({ queryKey: ["allPosts"] });
     },
   });
   const { mutate: editComment } = useMutation({
@@ -63,6 +64,7 @@ export function NewComment({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["comments"] });
+      queryClient.invalidateQueries({ queryKey: ["allPosts"] });
       setCommentToEdit(null);
     },
   });

@@ -33,13 +33,15 @@ export default function PostLayout({ children }: { children: ReactNode }) {
           <div className="flex flex-col p-4 rounded-sm min-h-[40rem] gap-4">
             <div className="flex gap-6 md:flex-col lg:flex-row">
               <Avatar className={"w-[120px] h-[120px]"}>
-                <Image
-                  className="object-cover"
-                  src={`https://drive.google.com/uc?export=view&id=${user?.avatarUrlId}`}
-                  alt="Foto usuário"
-                  width={200}
-                  height={200}
-                />
+                <AvatarImage asChild>
+                  <Image
+                    className="object-cover"
+                    src={`https://drive.google.com/uc?export=view&id=${user?.avatarUrlId}`}
+                    alt="Foto usuário"
+                    width={200}
+                    height={200}
+                  />
+                </AvatarImage>
 
                 <AvatarFallback>
                   <UserIcon />

@@ -19,6 +19,8 @@ import { useMutation } from "@tanstack/react-query";
 import { api } from "@/lib/axios-client";
 import { toast } from "sonner";
 import { AuthContext } from "@/context/auth-context";
+import { queryClient } from "@/context/react-query-provider";
+import { Loader2 } from "lucide-react";
 
 const editProfileFormSchema = z.object({
   name: z.string().max(40, {
@@ -44,7 +46,7 @@ export function EditProfileForm({ currentUser }: EditProfileFormlProps) {
 
   const [file, setFile] = useState<any>("");
 
-  const { mutate: updateProfile } = useMutation({
+  const { mutate: updateProfile, isPending: updatingProfile } = useMutation({
     mutationFn: async (profile: EditProfileFormData) => {
       const formData = new FormData();
 
@@ -60,6 +62,7 @@ export function EditProfileForm({ currentUser }: EditProfileFormlProps) {
       });
     },
     onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
       setUser(response.data);
       toast.success("Usuário atualizado");
     },
@@ -68,7 +71,7 @@ export function EditProfileForm({ currentUser }: EditProfileFormlProps) {
     resolver: zodResolver(editProfileFormSchema),
     defaultValues: {
       bio: currentUser?.bio ?? "",
-      image: currentUser?.avatarUrlId,
+      image: "",
       name: currentUser?.name,
       username: currentUser?.username,
     },
@@ -84,6 +87,7 @@ export function EditProfileForm({ currentUser }: EditProfileFormlProps) {
     });
 
   async function handleEditProfile(data: EditProfileFormData) {
+    console.log(data);
     updateProfile(data);
   }
 
@@ -189,6 +193,7 @@ export function EditProfileForm({ currentUser }: EditProfileFormlProps) {
         />
 
         <Button variant="default" type="submit">
+          {updatingProfile && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Salvar
         </Button>
       </form>

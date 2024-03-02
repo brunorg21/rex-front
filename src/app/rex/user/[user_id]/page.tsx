@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { AuthContext } from "@/context/auth-context";
 import { queryClient } from "@/context/react-query-provider";
@@ -31,7 +32,7 @@ export default function User({ params }: { params: { user_id: string } }) {
       return response.data;
     },
   });
-  const { data: user } = useQuery<UserData>({
+  const { data: user, isFetching: loadingUser } = useQuery<UserData>({
     queryKey: ["user"],
     queryFn: async () => {
       const response = await api.get(`/user/${params.user_id}`);
@@ -72,26 +73,25 @@ export default function User({ params }: { params: { user_id: string } }) {
     (follower) => follower.follower_username === currentUser?.username
   );
 
-  console.log("user =>", user);
-  console.log("currentUser =>", currentUser);
-
   return (
     <div className="flex flex-col p-4 space-y-4">
       <div className="flex items-center justify-center">
         <Avatar className="w-[180px] h-[180px]">
-          {currentUser?.avatarUrlId && user?.avatarUrlId && (
-            <Image
-              className="object-cover"
-              src={`https://drive.google.com/uc?export=view&id=${
-                user?.id === currentUser?.id
-                  ? currentUser?.avatarUrlId
-                  : user?.avatarUrlId
-              }`}
-              alt="Foto usuário"
-              width={200}
-              height={200}
-            />
-          )}
+          <AvatarImage asChild>
+            {currentUser?.avatarUrlId && user?.avatarUrlId && (
+              <Image
+                className="object-cover"
+                src={`https://drive.google.com/uc?export=view&id=${
+                  user?.id === currentUser?.id
+                    ? currentUser?.avatarUrlId
+                    : user?.avatarUrlId
+                }`}
+                alt="Foto usuário"
+                width={200}
+                height={200}
+              />
+            )}
+          </AvatarImage>
 
           <AvatarFallback>
             <UserIcon />
@@ -102,20 +102,35 @@ export default function User({ params }: { params: { user_id: string } }) {
 
       <div className="flex justify-between">
         <div className="flex flex-col space-y-2">
-          <span>{user?.name}</span>
-          <span className="text-muted-foreground">@{user?.username}</span>
+          {loadingUser ? (
+            <Skeleton className="w-32 h-5" />
+          ) : (
+            <span>{user?.name}</span>
+          )}
+          {loadingUser ? (
+            <Skeleton className="w-48 h-5" />
+          ) : (
+            <span className="text-muted-foreground">@{user?.username}</span>
+          )}
 
-          <p>{user?.bio}</p>
-
-          <div className="flex space-x-4">
-            <span className="flex gap-2">
-              <UserIcon /> {followers?.followersCount}{" "}
-              {followers?.followersCount === 1 ? "seguidor" : "seguidores"}
-            </span>
-            <span className="flex gap-2">
-              <UserIcon /> {followers?.followingCount} seguindo
-            </span>
-          </div>
+          {loadingUser ? (
+            <Skeleton className="w-96 h-10" />
+          ) : (
+            <p>{user?.bio}</p>
+          )}
+          {loadingUser ? (
+            <Skeleton className="w-56 h-8" />
+          ) : (
+            <div className="flex space-x-4">
+              <span className="flex gap-2">
+                <UserIcon /> {followers?.followersCount}
+                {followers?.followersCount === 1 ? " seguidor" : " seguidores"}
+              </span>
+              <span className="flex gap-2">
+                <UserIcon /> {followers?.followingCount} seguindo
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="flex gap-2">
